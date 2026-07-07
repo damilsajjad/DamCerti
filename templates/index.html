@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DamCerti</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap');
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0F1420;
+            color: #E8E6E1;
+            margin: 0;
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: #161D2E;
+            border: 1px solid #262F45;
+            border-radius: 16px;
+            padding: 40px;
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 32px;
+            font-weight: 700;
+            color: #F4F1EA;
+            margin: 0 0 4px 0;
+        }
+
+        .subtitle {
+            color: #8B93A7;
+            font-size: 14px;
+            margin-bottom: 32px;
+        }
+
+        .step-label {
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #C9A66B;
+            margin: 28px 0 10px 0;
+            display: block;
+        }
+
+        input[type="file"] {
+            background: #0F1420;
+            border: 1px solid #2C3652;
+            border-radius: 8px;
+            padding: 12px;
+            color: #E8E6E1;
+            width: 100%;
+            font-size: 14px;
+        }
+
+        .controls {
+            background: #0F1420;
+            border: 1px solid #2C3652;
+            border-radius: 10px;
+            padding: 16px 20px;
+            margin-top: 12px;
+        }
+
+        .controls label {
+            display: inline-block;
+            width: 100px;
+            font-size: 13px;
+            color: #8B93A7;
+            margin: 8px 0;
+        }
+
+        select, input[type="range"], input[type="color"] {
+            accent-color: #C9A66B;
+        }
+
+        select {
+            background: #161D2E;
+            color: #E8E6E1;
+            border: 1px solid #2C3652;
+            border-radius: 6px;
+            padding: 6px 10px;
+        }
+
+        #imagePreview {
+            position: relative;
+            display: inline-block;
+            margin-top: 14px;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #2C3652;
+        }
+
+        #imagePreview img {
+            max-width: 600px;
+            display: block;
+        }
+
+        #textMarker {
+            position: absolute;
+            cursor: move;
+            white-space: nowrap;
+            user-select: none;
+            display: none;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+
+        #coordsText {
+            font-size: 13px;
+            color: #8B93A7;
+            margin-top: 10px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #C9A66B, #B8935A);
+            color: #0F1420;
+            border: none;
+            border-radius: 8px;
+            padding: 14px 28px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 24px;
+            width: 100%;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(201, 166, 107, 0.25);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>DamCerti</h1>
+        <p class="subtitle">Certificate Generator</p>
+
+        <label class="step-label">Step 1: Upload Certificate Template (JPG/PNG)</label>
+        <input type="file" id="templateImage" accept=".jpg,.jpeg,.png">
+
+        <div class="controls">
+            <label>Font:</label>
+            <select id="fontSelect">
+                <option value="arial.ttf">Arial</option>
+                <option value="georgia.ttf">Georgia</option>
+                <option value="times.ttf">Times New Roman</option>
+                <option value="calibri.ttf">Calibri</option>
+                <option value="alexBrush.ttf">Alex Brush</option>
+            </select><br>
+
+            <label>Font Size:</label>
+            <input type="range" id="fontSize" min="10" max="100" value="40">
+            <span id="fontSizeLabel">40</span>px<br>
+
+            <label>Text Color:</label>
+            <input type="color" id="textColor" value="#000000">
+        </div>
+
+        <div id="imagePreview">
+            <img id="previewImg" src="" style="display:none;">
+            <div id="textMarker">Sample Name</div>
+        </div>
+        <p id="coordsText">Drag the text to position it exactly where names should appear.</p>
+
+        <label class="step-label">Step 2: Upload Excel File (with Name column)</label>
+        <input type="file" id="excelFile" accept=".xlsx,.xls">
+
+        <button id="generateBtn">Generate Certificates</button>
+    </div>
+
+    <script>
+        const templateInput = document.getElementById('templateImage');
+        const previewImg = document.getElementById('previewImg');
+        const textMarker = document.getElementById('textMarker');
+        const coordsText = document.getElementById('coordsText');
+        const fontSelect = document.getElementById('fontSelect');
+        const fontSize = document.getElementById('fontSize');
+        const fontSizeLabel = document.getElementById('fontSizeLabel');
+        const textColor = document.getElementById('textColor');
+
+        let xPercent = 50, yPercent = 50;
+        let dragging = false;
+
+        function updateMarkerStyle() {
+            textMarker.style.fontFamily = fontSelect.options[fontSelect.selectedIndex].text;
+            textMarker.style.fontSize = fontSize.value + 'px';
+            textMarker.style.color = textColor.value;
+            fontSizeLabel.innerText = fontSize.value;
+        }
+
+        templateInput.addEventListener('change', function () {
+            const file = this.files[0];
+            if (file) {
+                previewImg.src = URL.createObjectURL(file);
+                previewImg.style.display = 'block';
+                previewImg.onload = function () {
+                    textMarker.style.display = 'inline-block';
+                    textMarker.style.left = '50%';
+                    textMarker.style.top = '50%';
+                    textMarker.style.transform = 'translate(-50%, -50%)';
+                    updateMarkerStyle();
+                };
+            }
+        });
+
+        fontSelect.addEventListener('change', updateMarkerStyle);
+        fontSize.addEventListener('input', updateMarkerStyle);
+        textColor.addEventListener('input', updateMarkerStyle);
+
+        textMarker.addEventListener('mousedown', function (e) {
+            dragging = true;
+            e.preventDefault();
+        });
+
+        document.addEventListener('mouseup', function () {
+            dragging = false;
+        });
+
+        document.addEventListener('mousemove', function (e) {
+            if (!dragging) return;
+            const rect = previewImg.getBoundingClientRect();
+            let x = e.clientX - rect.left;
+            let y = e.clientY - rect.top;
+
+            x = Math.max(0, Math.min(x, rect.width));
+            y = Math.max(0, Math.min(y, rect.height));
+
+            xPercent = (x / rect.width) * 100;
+            yPercent = (y / rect.height) * 100;
+
+            textMarker.style.left = x + 'px';
+            textMarker.style.top = y + 'px';
+
+            coordsText.innerText = `Position: ${xPercent.toFixed(1)}%, ${yPercent.toFixed(1)}% (this is the CENTER of the text)`;
+        });
+
+        document.getElementById('generateBtn').addEventListener('click', function () {
+            const imageFile = templateInput.files[0];
+            const excelFile = document.getElementById('excelFile').files[0];
+
+            if (!imageFile || !excelFile) {
+                alert('Please upload both the template image and Excel file.');
+                return;
+            }
+
+            const rect = previewImg.getBoundingClientRect();
+            const scaleFactor = previewImg.naturalWidth / rect.width;
+            const scaledFontSize = fontSize.value * scaleFactor;
+
+            const formData = new FormData();
+            formData.append('template_image', imageFile);
+            formData.append('excel_file', excelFile);
+            formData.append('x_percent', xPercent);
+            formData.append('y_percent', yPercent);
+            formData.append('font_file', fontSelect.value);
+            formData.append('font_size', scaledFontSize);
+            formData.append('text_color', textColor.value);
+
+            fetch('/generate', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.blob())
+                .then(blob => {
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'certificates.zip';
+                    a.click();
+                })
+                .catch(err => alert('Error: ' + err));
+        });
+    </script>
+</body>
+</html>
