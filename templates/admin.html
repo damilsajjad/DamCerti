@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DamCerti - Admin Panel</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap');
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0F1420;
+            color: #E8E6E1;
+            margin: 0;
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: #161D2E;
+            border: 1px solid #262F45;
+            border-radius: 16px;
+            padding: 40px;
+        }
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 24px;
+        }
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: #F4F1EA;
+            margin: 0 0 4px 0;
+        }
+        .subtitle {
+            color: #8B93A7;
+            font-size: 14px;
+        }
+        .nav-links a {
+            color: #8B93A7;
+            font-size: 13px;
+            text-decoration: none;
+            margin-left: 16px;
+        }
+        .nav-links a:hover {
+            color: #C9A66B;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 13px;
+        }
+        th {
+            text-align: left;
+            color: #8B93A7;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 10px 12px;
+            border-bottom: 1px solid #262F45;
+        }
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #1C2438;
+            color: #E8E6E1;
+        }
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+        .badge-super_admin { background: #3A2E1F; color: #E8C58A; }
+        .badge-sub_admin { background: #1F3A2A; color: #A5E8C3; }
+        .badge-user { background: #1F2942; color: #8B93A7; }
+        .badge-active { background: #1F3A2A; color: #A5E8C3; }
+        .badge-inactive { background: #2C2C2C; color: #999; }
+        .action-btn {
+            background: #1F2942;
+            color: #E8E6E1;
+            border: 1px solid #2C3652;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .action-btn:hover {
+            border-color: #C9A66B;
+            color: #C9A66B;
+        }
+        .self-note {
+            color: #5A6178;
+            font-size: 12px;
+            font-style: italic;
+        }
+        .locked-note {
+            color: #5A6178;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-row">
+            <div>
+                <h1>Admin Panel</h1>
+                <p class="subtitle">{{ users|length }} total users</p>
+            </div>
+            <div class="nav-links">
+                <a href="/generate-certificates">Certificate Generator</a>
+                <a href="/logout">Log out</a>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Subscription</th>
+                    <th>Free Trial Used</th>
+                    <th>Joined</th>
+                    <th>Last Sign In</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.email }}</td>
+                    <td><span class="badge badge-{{ user.role }}">{{ user.role }}</span></td>
+                    <td><span class="badge badge-{{ user.subscription_status }}">{{ user.subscription_status }}</span></td>
+                    <td>{{ user.free_certificates_used or 0 }} / 15</td>
+                    <td>{{ user.created_at[:10] if user.created_at else '-' }}</td>
+                    <td>{{ user.last_sign_in[:16].replace('T', ' ') if user.last_sign_in else 'Never' }}</td>
+                    <td>
+                        {% if user.id == current_user_id %}
+                            <span class="self-note">This is you</span>
+                        {% elif user.role == 'super_admin' %}
+                            <span class="locked-note">Locked</span>
+                        {% elif user.role == 'sub_admin' %}
+                            <form method="POST" action="/admin/toggle-sub-admin" style="display:inline;">
+                                <input type="hidden" name="user_id" value="{{ user.id }}">
+                                <input type="hidden" name="new_role" value="user">
+                                <button type="submit" class="action-btn">Remove Free Access</button>
+                            </form>
+                        {% else %}
+                            <form method="POST" action="/admin/toggle-sub-admin" style="display:inline;">
+                                <input type="hidden" name="user_id" value="{{ user.id }}">
+                                <input type="hidden" name="new_role" value="sub_admin">
+                                <button type="submit" class="action-btn">Grant Free Access</button>
+                            </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

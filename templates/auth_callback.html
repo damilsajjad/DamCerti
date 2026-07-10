@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DamCerti - Signing you in...</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0F1420;
+            color: #E8E6E1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        p { color: #8B93A7; }
+    </style>
+</head>
+<body>
+    <p id="status">Signing you in...</p>
+
+    <script>
+        // Supabase returns the access token in the URL fragment (after #),
+        // which the server never sees automatically. We grab it here and
+        // send it to Flask so it can verify the user and start a session.
+        const hash = window.location.hash.substring(1);
+        const params = new URLSearchParams(hash);
+        const accessToken = params.get('access_token');
+
+        if (accessToken) {
+            fetch('/auth/callback', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ access_token: accessToken })
+            })
+            .then(response => {
+                if (response.ok) {
+                    window.location.href = '/';
+                } else {
+                    document.getElementById('status').innerText = 'Sign-in failed. Please try again.';
+                }
+            })
+            .catch(() => {
+                document.getElementById('status').innerText = 'Sign-in failed. Please try again.';
+            });
+        } else {
+            document.getElementById('status').innerText = 'No login token found. Please try again.';
+        }
+    </script>
+</body>
+</html>

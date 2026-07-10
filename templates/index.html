@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>DamCerti</title>
+    <title>DamCerti - Generator</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap');
 
@@ -36,7 +36,17 @@
         .subtitle {
             color: #8B93A7;
             font-size: 14px;
-            margin-bottom: 32px;
+            margin-bottom: 8px;
+        }
+
+        .trial-banner {
+            background: #1F2942;
+            border: 1px solid #2C3652;
+            border-radius: 8px;
+            padding: 10px 16px;
+            font-size: 13px;
+            color: #C9A66B;
+            margin-bottom: 24px;
         }
 
         .step-label {
@@ -134,12 +144,42 @@
             transform: translateY(-1px);
             box-shadow: 0 6px 20px rgba(201, 166, 107, 0.25);
         }
+
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .top-nav a {
+            font-size: 13px;
+            text-decoration: none;
+            margin-top: 6px;
+            margin-left: 16px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>DamCerti</h1>
-        <p class="subtitle">Certificate Generator</p>
+        <div class="top-nav">
+            <div>
+                <h1>DamCerti</h1>
+                <p class="subtitle">Certificate Generator</p>
+            </div>
+            <div>
+                <a href="/" style="color:#8B93A7;">Home</a>
+                {% if is_super_admin %}
+                <a href="/admin" style="color:#C9A66B;">Admin Panel</a>
+                {% endif %}
+                <a href="/logout" style="color:#8B93A7;">Log out</a>
+            </div>
+        </div>
+
+        {% if not is_admin and not is_subscribed %}
+        <div class="trial-banner">
+            {{ trial_remaining }} free certificate{{ 's' if trial_remaining != 1 else '' }} remaining on your trial.
+        </div>
+        {% endif %}
 
         <label class="step-label">Step 1: Upload Certificate Template (JPG/PNG)</label>
         <input type="file" id="templateImage" accept=".jpg,.jpeg,.png">
@@ -151,7 +191,10 @@
                 <option value="georgia.ttf">Georgia</option>
                 <option value="times.ttf">Times New Roman</option>
                 <option value="calibri.ttf">Calibri</option>
-                <option value="alexBrush.ttf">Alex Brush</option>
+                <option value="fonts/AlexBrush-Regular.ttf">Alex Brush (Calligraphy)</option>
+                <option value="fonts/GreatVibes-Regular.ttf">Great Vibes (Calligraphy)</option>
+                <option value="fonts/DancingScript-Regular.ttf">Dancing Script (Calligraphy)</option>
+                <option value="fonts/Sacramento-Regular.ttf">Sacramento (Calligraphy)</option>
             </select><br>
 
             <label>Font Size:</label>
@@ -188,7 +231,19 @@
         let dragging = false;
 
         function updateMarkerStyle() {
-            textMarker.style.fontFamily = fontSelect.options[fontSelect.selectedIndex].text;
+            const selectedFontValue = fontSelect.value;
+            // For calligraphy fonts (local .ttf files), the browser preview
+            // can't render the exact font without it being loaded as a web
+            // font too -- so we fall back to a close visual style (italic
+            // serif) in the preview only. The actual generated PDF always
+            // uses the real .ttf file correctly.
+            if (selectedFontValue.includes('fonts/')) {
+                textMarker.style.fontFamily = 'Georgia, serif';
+                textMarker.style.fontStyle = 'italic';
+            } else {
+                textMarker.style.fontFamily = fontSelect.options[fontSelect.selectedIndex].text;
+                textMarker.style.fontStyle = 'normal';
+            }
             textMarker.style.fontSize = fontSize.value + 'px';
             textMarker.style.color = textColor.value;
             fontSizeLabel.innerText = fontSize.value;
@@ -266,7 +321,13 @@
                 method: 'POST',
                 body: formData
             })
-                .then(response => response.blob())
+                .then(async response => {
+                    if (!response.ok) {
+                        const errData = await response.json().catch(() => ({}));
+                        throw new Error(errData.error || 'Something went wrong.');
+                    }
+                    return response.blob();
+                })
                 .then(blob => {
                     const url = window.URL.createObjectURL(blob);
                     const a = document.createElement('a');
@@ -274,7 +335,7 @@
                     a.download = 'certificates.zip';
                     a.click();
                 })
-                .catch(err => alert('Error: ' + err));
+                .catch(err => alert(err.message || 'Error generating certificates.'));
         });
     </script>
 </body>

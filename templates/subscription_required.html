@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DamCerti - Subscription Required</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap');
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0F1420;
+            color: #E8E6E1;
+            margin: 0;
+            padding: 40px 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .card {
+            max-width: 440px;
+            width: 100%;
+            background: #161D2E;
+            border: 1px solid #262F45;
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+        }
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 26px;
+            color: #F4F1EA;
+            margin: 0 0 12px 0;
+        }
+        p {
+            color: #8B93A7;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        button {
+            background: linear-gradient(135deg, #C9A66B, #B8935A);
+            color: #0F1420;
+            border: none;
+            border-radius: 8px;
+            padding: 14px 28px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+        }
+        a.logout {
+            display: block;
+            margin-top: 16px;
+            color: #8B93A7;
+            font-size: 13px;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Subscription Required</h1>
+        <p>Your account is active but doesn't have an active subscription yet. Subscribe to start generating certificates.</p>
+        <!-- Payment button will be wired here once Dodo Payments is integrated -->
+        <button type="button" disabled>Subscribe (coming soon)</button>
+        <a class="logout" href="/logout">Log out</a>
+    </div>
+</body>
+</html>
