@@ -7,8 +7,9 @@
         * { box-sizing: border-box; }
         body {
             font-family: 'Inter', sans-serif;
-            background: #0F1420;
-            color: #E8E6E1;
+            background: linear-gradient(160deg, #eafff7 0%, #cdf3e6 25%, #a7e8d4 50%, #7fd9bf 75%, #5cc9ab 100%);
+            background-attachment: fixed;
+            color: #0c3b33;
             margin: 0;
             padding: 40px 20px;
             min-height: 100vh;
@@ -16,10 +17,12 @@
         .container {
             max-width: 1000px;
             margin: 0 auto;
-            background: #161D2E;
-            border: 1px solid #262F45;
+            background: rgba(255, 255, 255, 0.55);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(12, 59, 51, 0.12);
             border-radius: 16px;
             padding: 40px;
+            box-shadow: 0 20px 50px rgba(12, 59, 51, 0.10);
         }
         .header-row {
             display: flex;
@@ -27,25 +30,39 @@
             align-items: flex-start;
             margin-bottom: 24px;
         }
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .brand img.logo {
+            height: 54px;
+            width: auto;
+            transition: transform 0.25s ease;
+        }
+        .brand img.logo:hover {
+            transform: scale(1.05);
+        }
         h1 {
             font-family: 'Playfair Display', serif;
             font-size: 28px;
             font-weight: 700;
-            color: #F4F1EA;
+            color: #0c3b33;
             margin: 0 0 4px 0;
         }
         .subtitle {
-            color: #8B93A7;
+            color: #2c5e52;
             font-size: 14px;
         }
         .nav-links a {
-            color: #8B93A7;
+            color: #2c5e52;
             font-size: 13px;
             text-decoration: none;
             margin-left: 16px;
+            transition: color 0.2s ease;
         }
         .nav-links a:hover {
-            color: #C9A66B;
+            color: #1a9c73;
         }
         table {
             width: 100%;
@@ -55,18 +72,21 @@
         }
         th {
             text-align: left;
-            color: #8B93A7;
+            color: #2c5e52;
             text-transform: uppercase;
             letter-spacing: 0.05em;
             font-size: 11px;
             font-weight: 600;
             padding: 10px 12px;
-            border-bottom: 1px solid #262F45;
+            border-bottom: 1px solid rgba(12, 59, 51, 0.15);
         }
         td {
             padding: 12px;
-            border-bottom: 1px solid #1C2438;
-            color: #E8E6E1;
+            border-bottom: 1px solid rgba(12, 59, 51, 0.08);
+            color: #0c3b33;
+        }
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.35);
         }
         .badge {
             display: inline-block;
@@ -77,41 +97,78 @@
             text-transform: uppercase;
             letter-spacing: 0.03em;
         }
-        .badge-super_admin { background: #3A2E1F; color: #E8C58A; }
-        .badge-sub_admin { background: #1F3A2A; color: #A5E8C3; }
-        .badge-user { background: #1F2942; color: #8B93A7; }
-        .badge-active { background: #1F3A2A; color: #A5E8C3; }
-        .badge-inactive { background: #2C2C2C; color: #999; }
+        .badge-super_admin { background: rgba(201, 166, 107, 0.25); color: #8a6a2e; }
+        .badge-sub_admin { background: rgba(47, 191, 143, 0.2); color: #0f7a56; }
+        .badge-user { background: rgba(12, 59, 51, 0.08); color: #2c5e52; }
+        .badge-active { background: rgba(47, 191, 143, 0.2); color: #0f7a56; }
+        .badge-inactive { background: rgba(120, 120, 120, 0.15); color: #666; }
         .action-btn {
-            background: #1F2942;
-            color: #E8E6E1;
-            border: 1px solid #2C3652;
+            position: relative;
+            background: rgba(255, 255, 255, 0.7);
+            color: #0c3b33;
+            border: 1px solid rgba(12, 59, 51, 0.18);
             border-radius: 6px;
             padding: 6px 12px;
             font-size: 12px;
             cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
         }
         .action-btn:hover {
-            border-color: #C9A66B;
-            color: #C9A66B;
+            border-color: #1a9c73;
+            color: #0c3b33;
+            transform: translateY(-1px);
+            box-shadow: 0 0 14px 3px rgba(57, 255, 184, 0.5), 0 0 30px 6px rgba(57, 255, 184, 0.2);
         }
         .self-note {
-            color: #5A6178;
+            color: #5c7770;
             font-size: 12px;
             font-style: italic;
         }
         .locked-note {
-            color: #5A6178;
+            color: #5c7770;
             font-size: 12px;
+        }
+        .toolbar {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .toolbar input[type="text"] {
+            flex: 1;
+            min-width: 200px;
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(12, 59, 51, 0.18);
+            border-radius: 8px;
+            padding: 10px 14px;
+            color: #0c3b33;
+            font-size: 13px;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .toolbar input[type="text"]:focus {
+            outline: none;
+            border-color: #2fbf8f;
+            box-shadow: 0 0 0 3px rgba(47, 191, 143, 0.2);
+        }
+        .toolbar select {
+            background: rgba(255, 255, 255, 0.8);
+            color: #0c3b33;
+            border: 1px solid rgba(12, 59, 51, 0.18);
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 13px;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header-row">
-            <div>
-                <h1>Admin Panel</h1>
-                <p class="subtitle">{{ users|length }} total users</p>
+            <div class="brand">
+                <img src="/static/images/logo.png" alt="DamCerti" class="logo">
+                <div>
+                    <h1>Admin Panel</h1>
+                    <p class="subtitle">{{ users|length }} total users</p>
+                </div>
             </div>
             <div class="nav-links">
                 <a href="/generate-certificates">Certificate Generator</a>

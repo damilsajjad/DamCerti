@@ -1,0 +1,7 @@
+flask
+pillow
+openpyxl
+reportlab
+python-dotenv
+supabase
+gunicorn

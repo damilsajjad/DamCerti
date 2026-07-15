@@ -5,12 +5,46 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap');
 
+        @font-face {
+            font-family: 'Arial';
+            src: url('static/fonts/Arimo-Regular.ttf');
+        }
+        @font-face {
+            font-family: 'Georgia';
+            src: url('static/fonts/Gelasio-Regular.ttf');
+        }
+        @font-face {
+            font-family: 'Times New Roman';
+            src: url('static/fonts/Tinos-Regular.ttf');
+        }
+        @font-face {
+            font-family: 'Calibri';
+            src: url('static/fonts/Carlito-Regular.ttf');
+        }
+        @font-face {
+            font-family: 'Alex Brush';
+            src: url('static/fonts/AlexBrush-Regular.ttf');
+        }
+        @font-face {
+            font-family: 'Great Vibes';
+            src: url('static/fonts/GreatVibes-Regular.ttf');
+        }
+        @font-face {
+            font-family: 'Dancing Script';
+            src: url('static/fonts/DancingScript-Regular.ttf');
+        }
+        @font-face {
+            font-family: 'Sacramento';
+            src: url('static/fonts/Sacramento-Regular.ttf');
+        }
+
         * { box-sizing: border-box; }
 
         body {
             font-family: 'Inter', sans-serif;
-            background: #0F1420;
-            color: #E8E6E1;
+            background: linear-gradient(160deg, #eafff7 0%, #cdf3e6 25%, #a7e8d4 50%, #7fd9bf 75%, #5cc9ab 100%);
+            background-attachment: fixed;
+            color: #0c3b33;
             margin: 0;
             padding: 40px 20px;
             min-height: 100vh;
@@ -19,33 +53,51 @@
         .container {
             max-width: 700px;
             margin: 0 auto;
-            background: #161D2E;
-            border: 1px solid #262F45;
+            background: rgba(255, 255, 255, 0.55);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(12, 59, 51, 0.12);
             border-radius: 16px;
             padding: 40px;
+            box-shadow: 0 20px 50px rgba(12, 59, 51, 0.10);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand img.logo {
+            height: 54px;
+            width: auto;
+            transition: transform 0.25s ease;
+        }
+
+        .brand img.logo:hover {
+            transform: scale(1.05);
         }
 
         h1 {
             font-family: 'Playfair Display', serif;
             font-size: 32px;
             font-weight: 700;
-            color: #F4F1EA;
+            color: #0c3b33;
             margin: 0 0 4px 0;
         }
 
         .subtitle {
-            color: #8B93A7;
+            color: #2c5e52;
             font-size: 14px;
             margin-bottom: 8px;
         }
 
         .trial-banner {
-            background: #1F2942;
-            border: 1px solid #2C3652;
+            background: rgba(47, 191, 143, 0.14);
+            border: 1px solid rgba(47, 191, 143, 0.35);
             border-radius: 8px;
             padding: 10px 16px;
             font-size: 13px;
-            color: #C9A66B;
+            color: #0f7a56;
             margin-bottom: 24px;
         }
 
@@ -54,24 +106,24 @@
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            color: #C9A66B;
+            color: #1a9c73;
             margin: 28px 0 10px 0;
             display: block;
         }
 
         input[type="file"] {
-            background: #0F1420;
-            border: 1px solid #2C3652;
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(12, 59, 51, 0.18);
             border-radius: 8px;
             padding: 12px;
-            color: #E8E6E1;
+            color: #0c3b33;
             width: 100%;
             font-size: 14px;
         }
 
         .controls {
-            background: #0F1420;
-            border: 1px solid #2C3652;
+            background: rgba(255, 255, 255, 0.4);
+            border: 1px solid rgba(12, 59, 51, 0.15);
             border-radius: 10px;
             padding: 16px 20px;
             margin-top: 12px;
@@ -81,18 +133,18 @@
             display: inline-block;
             width: 100px;
             font-size: 13px;
-            color: #8B93A7;
+            color: #2c5e52;
             margin: 8px 0;
         }
 
         select, input[type="range"], input[type="color"] {
-            accent-color: #C9A66B;
+            accent-color: #1a9c73;
         }
 
         select {
-            background: #161D2E;
-            color: #E8E6E1;
-            border: 1px solid #2C3652;
+            background: rgba(255, 255, 255, 0.8);
+            color: #0c3b33;
+            border: 1px solid rgba(12, 59, 51, 0.18);
             border-radius: 6px;
             padding: 6px 10px;
         }
@@ -103,7 +155,7 @@
             margin-top: 14px;
             border-radius: 10px;
             overflow: hidden;
-            border: 1px solid #2C3652;
+            border: 1px solid rgba(12, 59, 51, 0.18);
         }
 
         #imagePreview img {
@@ -122,13 +174,14 @@
 
         #coordsText {
             font-size: 13px;
-            color: #8B93A7;
+            color: #2c5e52;
             margin-top: 10px;
         }
 
         button {
-            background: linear-gradient(135deg, #C9A66B, #B8935A);
-            color: #0F1420;
+            position: relative;
+            background: linear-gradient(135deg, #2fbf8f, #1a9c73);
+            color: #ffffff;
             border: none;
             border-radius: 8px;
             padding: 14px 28px;
@@ -137,12 +190,13 @@
             cursor: pointer;
             margin-top: 24px;
             width: 100%;
+            box-shadow: 0 4px 14px rgba(31, 158, 115, 0.3);
             transition: transform 0.15s ease, box-shadow 0.15s ease;
         }
 
         button:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 6px 20px rgba(201, 166, 107, 0.25);
+            transform: translateY(-2px);
+            box-shadow: 0 0 18px 4px rgba(57, 255, 184, 0.7), 0 0 40px 10px rgba(57, 255, 184, 0.35);
         }
 
         .top-nav {
@@ -156,22 +210,31 @@
             text-decoration: none;
             margin-top: 6px;
             margin-left: 16px;
+            color: #2c5e52;
+            transition: color 0.2s ease;
+        }
+
+        .top-nav a:hover {
+            color: #0c3b33;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="top-nav">
-            <div>
-                <h1>DamCerti</h1>
-                <p class="subtitle">Certificate Generator</p>
+            <div class="brand">
+                <img src="/static/images/logo.png" alt="DamCerti" class="logo">
+                <div>
+                    <!-- <h1>DamCerti</h1> -->
+                    <h3>Certificate Generator</h3>
+                </div>
             </div>
             <div>
-                <a href="/" style="color:#8B93A7;">Home</a>
+                <a href="/">Home</a>
                 {% if is_super_admin %}
-                <a href="/admin" style="color:#C9A66B;">Admin Panel</a>
+                <a href="/admin" style="color:#1a9c73;">Admin Panel</a>
                 {% endif %}
-                <a href="/logout" style="color:#8B93A7;">Log out</a>
+                <a href="/logout">Log out</a>
             </div>
         </div>
 
@@ -187,14 +250,15 @@
         <div class="controls">
             <label>Font:</label>
             <select id="fontSelect">
-                <option value="arial.ttf">Arial</option>
-                <option value="georgia.ttf">Georgia</option>
-                <option value="times.ttf">Times New Roman</option>
-                <option value="calibri.ttf">Calibri</option>
-                <option value="fonts/AlexBrush-Regular.ttf">Alex Brush (Calligraphy)</option>
-                <option value="fonts/GreatVibes-Regular.ttf">Great Vibes (Calligraphy)</option>
-                <option value="fonts/DancingScript-Regular.ttf">Dancing Script (Calligraphy)</option>
-                <option value="fonts/Sacramento-Regular.ttf">Sacramento (Calligraphy)</option>
+                <option value="static/fonts/Arimo-Regular.ttf">Arial</option>
+                <option value="static/fonts/Gelasio-Regular.ttf">Georgia</option>
+                <option value="static/fonts/Tinos-Regular.ttf">Times New Roman</option>
+                <option value="static/fonts/Carlito-Regular.ttf">Calibri</option>
+                <option value="static/fonts/AlexBrush-Regular.ttf">Alex Brush</option>
+                <option value="static/fonts/GreatVibes-Regular.ttf">Great Vibes</option>
+                <option value="static/fonts/DancingScript-Regular.ttf">Dancing Script</option>
+                <option value="static/fonts/Sacramento-Regular.ttf">Sacramento</option>
+            </select><br>
             </select><br>
 
             <label>Font Size:</label>
@@ -230,24 +294,46 @@
         let xPercent = 50, yPercent = 50;
         let dragging = false;
 
+        const loadedFonts = {}; // cache so we don't reload the same font repeatedly
+
         function updateMarkerStyle() {
             const selectedFontValue = fontSelect.value;
-            // For calligraphy fonts (local .ttf files), the browser preview
-            // can't render the exact font without it being loaded as a web
-            // font too -- so we fall back to a close visual style (italic
-            // serif) in the preview only. The actual generated PDF always
-            // uses the real .ttf file correctly.
-            if (selectedFontValue.includes('fonts/')) {
-                textMarker.style.fontFamily = 'Georgia, serif';
-                textMarker.style.fontStyle = 'italic';
+            const selectedFontLabel = fontSelect.options[fontSelect.selectedIndex].text;
+
+            if (selectedFontValue.startsWith('static/fonts/')) {
+                const fontFamilyName = 'preview-' + selectedFontValue.split('/').pop().replace('.ttf', '');
+                const fontUrl = '/' + selectedFontValue;
+
+                if (loadedFonts[fontFamilyName]) {
+                    applyFont(fontFamilyName);
+                } else {
+                    const fontFace = new FontFace(fontFamilyName, `url(${fontUrl})`);
+                    fontFace.load()
+                        .then(loaded => {
+                            document.fonts.add(loaded);
+                            loadedFonts[fontFamilyName] = true;
+                            applyFont(fontFamilyName);
+                        })
+                        .catch(() => {
+                            textMarker.style.fontFamily = 'Georgia, serif';
+                            textMarker.style.fontStyle = 'italic';
+                        });
+                }
             } else {
-                textMarker.style.fontFamily = fontSelect.options[fontSelect.selectedIndex].text;
+                textMarker.style.fontFamily = selectedFontLabel;
                 textMarker.style.fontStyle = 'normal';
             }
+
             textMarker.style.fontSize = fontSize.value + 'px';
             textMarker.style.color = textColor.value;
             fontSizeLabel.innerText = fontSize.value;
         }
+
+        function applyFont(fontFamilyName) {
+            textMarker.style.fontFamily = fontFamilyName;
+            textMarker.style.fontStyle = 'normal';
+        }
+        
 
         templateInput.addEventListener('change', function () {
             const file = this.files[0];

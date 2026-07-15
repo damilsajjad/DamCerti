@@ -7,8 +7,9 @@
         * { box-sizing: border-box; }
         body {
             font-family: 'Inter', sans-serif;
-            background: #0F1420;
-            color: #E8E6E1;
+            background: linear-gradient(160deg, #eafff7 0%, #cdf3e6 25%, #a7e8d4 50%, #7fd9bf 75%, #5cc9ab 100%);
+            background-attachment: fixed;
+            color: #0c3b33;
             margin: 0;
             padding: 40px 20px;
             min-height: 100vh;
@@ -19,32 +20,56 @@
         .card {
             max-width: 400px;
             width: 100%;
-            background: #161D2E;
-            border: 1px solid #262F45;
+            background: rgba(255, 255, 255, 0.55);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(12, 59, 51, 0.12);
             border-radius: 16px;
             padding: 40px;
+            box-shadow: 0 20px 50px rgba(12, 59, 51, 0.12);
+            animation: fadeUp 0.6s ease both;
+        }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(14px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .logo {
+            display: block;
+            margin: 0 auto 16px auto;
+            height: 80px;
+            width: auto;
+            transition: transform 0.25s ease;
+        }
+        .logo:hover {
+            transform: scale(1.05);
         }
         h1 {
             font-family: 'Playfair Display', serif;
             font-size: 28px;
             font-weight: 700;
-            color: #F4F1EA;
+            color: #0c3b33;
             margin: 0 0 24px 0;
             text-align: center;
         }
         input {
             width: 100%;
-            background: #0F1420;
-            border: 1px solid #2C3652;
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(12, 59, 51, 0.18);
             border-radius: 8px;
             padding: 12px;
-            color: #E8E6E1;
+            color: #0c3b33;
             font-size: 14px;
             margin-bottom: 14px;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        input:focus {
+            outline: none;
+            border-color: #2fbf8f;
+            box-shadow: 0 0 0 3px rgba(47, 191, 143, 0.2);
         }
         button {
-            background: linear-gradient(135deg, #C9A66B, #B8935A);
-            color: #0F1420;
+            position: relative;
+            background: linear-gradient(135deg, #2fbf8f, #1a9c73);
+            color: #ffffff;
             border: none;
             border-radius: 8px;
             padding: 14px 28px;
@@ -52,32 +77,43 @@
             font-weight: 600;
             cursor: pointer;
             width: 100%;
+            box-shadow: 0 4px 14px rgba(31, 158, 115, 0.3);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 18px 4px rgba(57, 255, 184, 0.7), 0 0 40px 10px rgba(57, 255, 184, 0.35);
         }
         .google-btn {
-            background: #1F2942;
-            color: #E8E6E1;
-            border: 1px solid #2C3652;
+            background: rgba(255, 255, 255, 0.75);
+            color: #0c3b33;
+            border: 1px solid rgba(12, 59, 51, 0.18);
             margin-top: 10px;
+            box-shadow: none;
+        }
+        .google-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 14px 3px rgba(57, 255, 184, 0.4);
         }
         .divider {
             text-align: center;
-            color: #8B93A7;
+            color: #2c5e52;
             font-size: 13px;
             margin: 18px 0;
         }
         .error {
-            background: #3A1F24;
-            color: #F2A5A5;
-            border: 1px solid #5C2C33;
+            background: rgba(255, 80, 80, 0.12);
+            color: #b3261e;
+            border: 1px solid rgba(255, 80, 80, 0.3);
             border-radius: 8px;
             padding: 10px 14px;
             font-size: 13px;
             margin-bottom: 16px;
         }
         .success {
-            background: #1F3A2A;
-            color: #A5E8C3;
-            border: 1px solid #2C5C3F;
+            background: rgba(47, 191, 143, 0.14);
+            color: #0f7a56;
+            border: 1px solid rgba(47, 191, 143, 0.35);
             border-radius: 8px;
             padding: 10px 14px;
             font-size: 13px;
@@ -87,16 +123,22 @@
             text-align: center;
             margin-top: 18px;
             font-size: 13px;
-            color: #8B93A7;
+            color: #2c5e52;
         }
         .bottom-link a {
-            color: #C9A66B;
+            color: #1a9c73;
             text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s ease;
+        }
+        .bottom-link a:hover {
+            color: #0c3b33;
         }
     </style>
 </head>
 <body>
     <div class="card">
+        <img src="/static/images/logo.png" alt="DamCerti" class="logo">
         <h1>Create Account</h1>
 
         {% if error %}
