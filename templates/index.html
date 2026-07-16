@@ -114,11 +114,35 @@
         input[type="file"] {
             background: rgba(255, 255, 255, 0.7);
             border: 1px solid rgba(12, 59, 51, 0.18);
-            border-radius: 8px;
+            border-radius: 10px;
             padding: 12px;
             color: #0c3b33;
             width: 100%;
             font-size: 14px;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        input[type="file"]:hover {
+            border-color: #1a9c73;
+            box-shadow: 0 0 14px 2px rgba(57, 255, 184, 0.35);
+        }
+
+        input[type="file"]::file-selector-button {
+            background: linear-gradient(135deg, #2fbf8f, #1a9c73);
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            margin-right: 12px;
+            transition: all 0.2s ease;
+        }
+
+        input[type="file"]::file-selector-button:hover {
+            box-shadow: 0 0 12px 2px rgba(57, 255, 184, 0.6);
+            transform: translateY(-1px);
         }
 
         .controls {
@@ -217,6 +241,60 @@
         .top-nav a:hover {
             color: #0c3b33;
         }
+
+        .input-mode-toggle {
+            display: flex;
+            gap: 10px;
+            margin-top: 8px;
+            margin-bottom: 14px;
+        }
+
+        .mode-btn {
+            background: rgba(255, 255, 255, 0.5);
+            color: #2c5e52;
+            border: 1px solid rgba(12, 59, 51, 0.18);
+            border-radius: 10px;
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            flex: 1;
+            margin-top: 0;
+            transition: all 0.2s ease;
+        }
+
+        .mode-btn.active {
+            background: linear-gradient(135deg, #2fbf8f, #1a9c73);
+            color: #ffffff;
+            border-color: transparent;
+            box-shadow: 0 4px 14px rgba(31, 158, 115, 0.3);
+        }
+
+        .mode-btn:hover:not(.active) {
+            border-color: #1a9c73;
+            color: #0c3b33;
+            box-shadow: 0 0 14px 2px rgba(57, 255, 184, 0.35);
+        }
+
+        #pastedNames {
+            width: 100%;
+            min-height: 140px;
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(12, 59, 51, 0.18);
+            border-radius: 10px;
+            padding: 14px;
+            color: #0c3b33;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            resize: vertical;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        #pastedNames:focus {
+            outline: none;
+            border-color: #1a9c73;
+            box-shadow: 0 0 14px 2px rgba(57, 255, 184, 0.35);
+        }
     </style>
 </head>
 <body>
@@ -251,11 +329,11 @@
             <label>Font:</label>
             <select id="fontSelect">
                 <option value="static/fonts/Arimo-Regular.ttf">Arial</option>
-                <option value="static/fonts/Gelasio-Regular.ttf">Georgia</option>
-                <option value="static/fonts/Tinos-Regular.ttf">Times New Roman</option>
+                <option value="static/fonts/Gelasio-Regular.ttf">Gelasio</option>
+                <option value="static/fonts/Tinos-Regular.ttf">Tinos / Time New Roman</option>
                 <option value="static/fonts/Carlito-Regular.ttf">Calibri</option>
                 <option value="static/fonts/AlexBrush-Regular.ttf">Alex Brush</option>
-                <option value="static/fonts/GreatVibes-Regular.ttf">Great Vibes</option>
+                <option value="static/fonts/GreatVibes-Regular.ttf">Great Vibe</option>
                 <option value="static/fonts/DancingScript-Regular.ttf">Dancing Script</option>
                 <option value="static/fonts/Sacramento-Regular.ttf">Sacramento</option>
             </select><br>
@@ -275,13 +353,46 @@
         </div>
         <p id="coordsText">Drag the text to position it exactly where names should appear.</p>
 
-        <label class="step-label">Step 2: Upload Excel File (with Name column)</label>
-        <input type="file" id="excelFile" accept=".xlsx,.xls">
+        <label class="step-label">Step 2: Provide Your Names</label>
+
+        <div class="input-mode-toggle">
+            <button type="button" class="mode-btn active" id="modeExcelBtn">Upload Excel</button>
+            <button type="button" class="mode-btn" id="modePasteBtn">Paste Names</button>
+        </div>
+
+        <div id="excelModeSection">
+            <input type="file" id="excelFile" accept=".xlsx,.xls">
+        </div>
+
+        <div id="pasteModeSection" style="display:none;">
+            <textarea id="pastedNames" placeholder="Paste names here, one per line:&#10;Ali Khan&#10;Sara Ahmed&#10;Bilal Hussain"></textarea>
+        </div>
 
         <button id="generateBtn">Generate Certificates</button>
     </div>
 
     <script>
+        const modeExcelBtn = document.getElementById('modeExcelBtn');
+        const modePasteBtn = document.getElementById('modePasteBtn');
+        const excelModeSection = document.getElementById('excelModeSection');
+        const pasteModeSection = document.getElementById('pasteModeSection');
+        let inputMode = 'excel';
+
+        modeExcelBtn.addEventListener('click', function () {
+            inputMode = 'excel';
+            modeExcelBtn.classList.add('active');
+            modePasteBtn.classList.remove('active');
+            excelModeSection.style.display = 'block';
+            pasteModeSection.style.display = 'none';
+        });
+
+        modePasteBtn.addEventListener('click', function () {
+            inputMode = 'paste';
+            modePasteBtn.classList.add('active');
+            modeExcelBtn.classList.remove('active');
+            pasteModeSection.style.display = 'block';
+            excelModeSection.style.display = 'none';
+        });
         const templateInput = document.getElementById('templateImage');
         const previewImg = document.getElementById('previewImg');
         const textMarker = document.getElementById('textMarker');
@@ -384,9 +495,18 @@
         document.getElementById('generateBtn').addEventListener('click', function () {
             const imageFile = templateInput.files[0];
             const excelFile = document.getElementById('excelFile').files[0];
+            const pastedNames = document.getElementById('pastedNames').value.trim();
 
-            if (!imageFile || !excelFile) {
-                alert('Please upload both the template image and Excel file.');
+            if (!imageFile) {
+                alert('Please upload a certificate template.');
+                return;
+            }
+            if (inputMode === 'excel' && !excelFile) {
+                alert('Please upload an Excel file.');
+                return;
+            }
+            if (inputMode === 'paste' && !pastedNames) {
+                alert('Please paste at least one name.');
                 return;
             }
 
@@ -396,7 +516,12 @@
 
             const formData = new FormData();
             formData.append('template_image', imageFile);
-            formData.append('excel_file', excelFile);
+            formData.append('input_mode', inputMode);
+                if (inputMode === 'excel') {
+                    formData.append('excel_file', excelFile);
+                } else {
+                    formData.append('pasted_names', pastedNames);
+                }
             formData.append('x_percent', xPercent);
             formData.append('y_percent', yPercent);
             formData.append('font_file', fontSelect.value);

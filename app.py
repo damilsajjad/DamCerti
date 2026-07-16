@@ -445,21 +445,28 @@ def subscription_required_page():
 @subscription_required
 def generate():
     template_image = request.files['template_image']
-    excel_file = request.files['excel_file']
+    input_mode = request.form.get('input_mode', 'excel')
     x_percent = float(request.form['x_percent'])
     y_percent = float(request.form['y_percent'])
     font_file = request.form['font_file']
     font_size = int(float(request.form['font_size']))
     text_color = request.form['text_color']  # e.g. "#ff0000"
 
-    # Save uploads
+    # Save the template image (always required regardless of input mode)
     image_path = os.path.join(UPLOAD_FOLDER, template_image.filename)
-    excel_path = os.path.join(UPLOAD_FOLDER, excel_file.filename)
     template_image.save(image_path)
-    excel_file.save(excel_path)
 
-    # Read names from Excel
-    names = extract_names_from_excel(excel_path)
+    if input_mode == 'paste':
+        pasted_text = request.form.get('pasted_names', '')
+        names = [line.strip() for line in pasted_text.splitlines() if line.strip()]
+    else:
+        excel_file = request.files['excel_file']
+        excel_path = os.path.join(UPLOAD_FOLDER, excel_file.filename)
+        excel_file.save(excel_path)
+        names = extract_names_from_excel(excel_path)
+
+    if not names:
+        return jsonify({"error": "No names found. Please check your file or pasted list."}), 400
 
     # Enforce free trial limit for non-admin, non-subscribed users.
     # Admins and active subscribers generate without limit.
@@ -483,7 +490,7 @@ def generate():
     try:
         font = ImageFont.truetype(font_file, font_size)
     except Exception:
-        font = ImageFont.truetype("arial.ttf", font_size)
+        font = ImageFont.truetype("static/fonts/Arimo-Regular.ttf", font_size)
 
     zip_buffer = io.BytesIO()
     with zipfile.ZipFile(zip_buffer, 'w') as zip_file:
