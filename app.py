@@ -87,6 +87,47 @@ def get_profile_for_user(user_id, access_token):
     result = client.table('profiles').select('*').eq('id', user_id).single().execute()
     return result.data
 
+def extract_names_from_excel(excel_path):
+    """
+    Forgiving Excel reader: finds a 'Name' column regardless of case or
+    surrounding spaces, skips fully blank leading rows, and falls back to
+    reading the first column directly if no 'Name' header is found at all
+    (covers files with no header row, or a header the user didn't label).
+    """
+    wb = openpyxl.load_workbook(excel_path)
+    sheet = wb.active
+
+    rows = list(sheet.iter_rows(values_only=True))
+    # Skip any fully blank rows at the top (e.g. an accidental empty first row)
+    rows = [row for row in rows if any(cell is not None and str(cell).strip() != '' for cell in row)]
+
+    if not rows:
+        return []
+
+    header_row = rows[0]
+    name_col_index = None
+    for i, cell in enumerate(header_row):
+        if cell and str(cell).strip().lower() == 'name':
+            name_col_index = i
+            break
+
+    if name_col_index is not None:
+        # Real header found -- skip it, read the rest as data
+        data_rows = rows[1:]
+    else:
+        # No 'Name' header found anywhere -- assume no header row exists,
+        # and that the first column holds the names directly.
+        name_col_index = 0
+        data_rows = rows
+
+    names = []
+    for row in data_rows:
+        if len(row) > name_col_index and row[name_col_index] is not None:
+            value = str(row[name_col_index]).strip()
+            if value:
+                names.append(value)
+
+    return names
 
 def increment_free_certificates_used(user_id, access_token, count):
     """
@@ -418,15 +459,7 @@ def generate():
     excel_file.save(excel_path)
 
     # Read names from Excel
-    wb = openpyxl.load_workbook(excel_path)
-    sheet = wb.active
-    headers = [cell.value for cell in sheet[1]]
-    name_col_index = headers.index('Name')
-
-    names = []
-    for row in sheet.iter_rows(min_row=2, values_only=True):
-        if row[name_col_index]:
-            names.append(str(row[name_col_index]))
+    names = extract_names_from_excel(excel_path)
 
     # Enforce free trial limit for non-admin, non-subscribed users.
     # Admins and active subscribers generate without limit.
