@@ -158,6 +158,17 @@
             padding: 10px 12px;
             font-size: 13px;
         }
+        .no-results-row td {
+            text-align: center;
+            padding: 30px 12px;
+            color: #5c7770;
+            font-style: italic;
+        }
+        .result-count {
+            color: #2c5e52;
+            font-size: 12px;
+            margin-top: 8px;
+        }
     </style>
 </head>
 <body>
@@ -176,6 +187,19 @@
                 <a href="/logout">Log out</a>
             </div>
         </div>
+        <!-- Search Section   -->
+        <div class="toolbar">
+            <input type="text" id="userSearchInput" placeholder="Search by email..." autocomplete="off" onkeyup="filterUsers()">
+        </div>
+        <p class="result-count" id="resultCount"></p>
+        <!-- Upload Video Section  -->
+        <div class="toolbar" style="margin-top: 16px;">
+            <form method="POST" action="/admin/upload-video" enctype="multipart/form-data" style="display:flex; gap:12px; align-items:center; flex:1;">
+                <input type="file" name="intro_video" accept=".mp4,.webm" required>
+                <button type="submit" class="action-btn" style="white-space:nowrap;">Upload Intro Video</button>
+            </form>
+        </div>
+        <p class="result-count">Uploading a new video replaces the current one on the landing page. Max size: 200MB.</p>
 
         <table>
             <thead>
@@ -189,9 +213,9 @@
                     <th>Action</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="userTableBody">
                 {% for user in users %}
-                <tr>
+                <tr data-email="{{ user.email|lower }}">
                     <td>{{ user.email }}</td>
                     <td><span class="badge badge-{{ user.role }}">{{ user.role }}</span></td>
                     <td><span class="badge badge-{{ user.subscription_status }}">{{ user.subscription_status }}</span></td>
@@ -222,5 +246,27 @@
             </tbody>
         </table>
     </div>
+
+    <script>
+        function filterUsers() {
+            const query = document.getElementById('userSearchInput').value.trim().toLowerCase();
+            const rows = document.querySelectorAll('#userTableBody tr[data-email]');
+            let visibleCount = 0;
+
+            rows.forEach(row => {
+                const email = row.getAttribute('data-email');
+                const matches = email.includes(query);
+                row.style.display = matches ? '' : 'none';
+                if (matches) visibleCount++;
+            });
+
+            const resultCountEl = document.getElementById('resultCount');
+            if (query === '') {
+                resultCountEl.textContent = '';
+            } else {
+                resultCountEl.textContent = visibleCount + ' user' + (visibleCount === 1 ? '' : 's') + ' found';
+            }
+        }
+    </script>
 </body>
 </html>

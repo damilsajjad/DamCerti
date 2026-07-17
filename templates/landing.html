@@ -229,14 +229,20 @@
             {% if is_logged_in %}
                 <a href="/generate-certificates" class="btn-primary">Go to App</a>
             {% else %}
-                <a href="/signup" class="btn-primary">Start Free -- 15 Certificates</a>
+                <a href="/signup" class="btn-primary">Start Free -- 5 Certificates</a>
                 <a href="/login" class="btn-secondary">Log In</a>
             {% endif %}
         </div>
 
         <div class="video-wrap">
-            <!-- Video will be embedded here once uploaded via the admin panel. -->
-            <div class="video-placeholder">Intro video coming soon</div>
+            {% if intro_video_url %}
+                <video controls style="width: 100%; height: 100%; display: block;">
+                    <source src="{{ intro_video_url }}" type="video/{{ intro_video_url.rsplit('.', 1)[-1] }}">
+                    Your browser doesn't support embedded video.
+                </video>
+            {% else %}
+                <div class="video-placeholder">Intro video coming soon</div>
+            {% endif %}
         </div>
     </section>
 
@@ -268,7 +274,7 @@
             </div>
             <div class="feature-card">
                 <h3>Free to Try</h3>
-                <p>Every account starts with 15 free certificates -- see the quality before you subscribe.</p>
+                <p>Every account starts with 5 free certificates -- see the quality before you subscribe.</p>
             </div>
         </div>
     </section>

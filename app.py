@@ -19,6 +19,10 @@ load_dotenv()
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 FLASK_SECRET_KEY = os.getenv("FLASK_SECRET_KEY")
+INTRO_VIDEO_BUCKET = 'intro-video'
+ALLOWED_VIDEO_EXTENSIONS = {'.mp4', '.webm'}
+MAX_VIDEO_SIZE_BYTES = 200 * 1024 * 1024  # 200MB
+SIGNED_URL_EXPIRY_SECONDS = 60 * 60 * 24  # 24 hours
 
 if not FLASK_SECRET_KEY:
     raise RuntimeError(
@@ -40,7 +44,7 @@ app.config.update(
 UPLOAD_FOLDER = 'uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-FREE_TRIAL_LIMIT = 15
+FREE_TRIAL_LIMIT = 5  # Number of free certificates allowed for trial users
 
 LEMONSQUEEZY_API_KEY = os.getenv("LEMONSQUEEZY_API_KEY")
 LEMONSQUEEZY_STORE_ID = os.getenv("LEMONSQUEEZY_STORE_ID")
@@ -313,6 +317,25 @@ def admin_required(view_func):
         return view_func(*args, **kwargs)
     return wrapped
 
+def get_intro_video_url():
+    """
+    Returns a temporary signed URL for the current intro video, or None
+    if nothing has been uploaded yet. Since the bucket is private, the
+    URL expires after SIGNED_URL_EXPIRY_SECONDS -- the landing page route
+    calls this fresh on every page load, so visitors always get a valid link.
+    """
+    for ext in ALLOWED_VIDEO_EXTENSIONS:
+        object_path = f'intro{ext}'
+        try:
+            files = supabase.storage.from_(INTRO_VIDEO_BUCKET).list()
+            if any(f['name'] == object_path for f in files):
+                result = supabase.storage.from_(INTRO_VIDEO_BUCKET).create_signed_url(
+                    object_path, SIGNED_URL_EXPIRY_SECONDS
+                )
+                return result['signedURL']
+        except Exception:
+            continue
+    return None
 
 # ---------------------------------------------------------------------------
 # Public routes
@@ -320,11 +343,16 @@ def admin_required(view_func):
 
 @app.route('/')
 def landing():
-    # Public landing page -- no login required. Logged-in users get a
-    # "Go to App" button instead of "Sign Up" (checked client-side isn't
-    # reliable, so we check session here).
     is_logged_in = bool(session.get('user_id'))
-    return render_template('landing.html', is_logged_in=is_logged_in)
+
+    intro_video_path = None
+    for ext in ('.mp4', '.webm'):
+        candidate = os.path.join('static', 'videos', f'intro{ext}')
+        if os.path.exists(candidate):
+            intro_video_path = f'/static/videos/intro{ext}'
+            break
+
+    return render_template('landing.html', is_logged_in=is_logged_in, intro_video_url=intro_video_path)
 
 
 # ---------------------------------------------------------------------------
@@ -501,15 +529,7 @@ def generate():
             x = (x_percent / 100) * img.width
             y = (y_percent / 100) * img.height
 
-            bbox = draw.textbbox((0, 0), name, font=font)
-            text_width = bbox[2] - bbox[0]
-            text_height = bbox[3] - bbox[1]
-
-            # x,y is the CENTER (matches the draggable preview), shift to top-left for drawing
-            draw_x = x - text_width / 2
-            draw_y = y - text_height / 2
-
-            draw.text((draw_x, draw_y), name, fill=text_color, font=font)
+            draw.text((x, y), name, fill=text_color, font=font, anchor="mm")
 
             pdf_buffer = io.BytesIO()
             img.save(pdf_buffer, format="PDF")
@@ -542,6 +562,50 @@ def admin_panel():
     result = client.table('profiles').select('*').order('created_at', desc=True).execute()
     return render_template('admin.html', users=result.data, current_user_id=session['user_id'])
 
+ALLOWED_VIDEO_EXTENSIONS = {'.mp4', '.webm'}
+MAX_VIDEO_SIZE_BYTES = 200 * 1024 * 1024  # 200MB
+
+
+@app.route('/admin/upload-video', methods=['POST'])
+@login_required
+@admin_required
+def upload_video():
+    video_file = request.files.get('intro_video')
+    if not video_file or video_file.filename == '':
+        return redirect('/admin')
+
+    ext = os.path.splitext(video_file.filename)[1].lower()
+    if ext not in ALLOWED_VIDEO_EXTENSIONS:
+        return "Invalid file type. Please upload an .mp4 or .webm file.", 400
+
+    video_file.seek(0, os.SEEK_END)
+    file_size = video_file.tell()
+    video_file.seek(0)
+    if file_size > MAX_VIDEO_SIZE_BYTES:
+        return "File too large. Maximum size is 200MB.", 400
+
+    # Remove any existing intro video in the other format, so we never
+    # end up with two videos and an ambiguous "which one is live" state.
+    for other_ext in ALLOWED_VIDEO_EXTENSIONS:
+        if other_ext != ext:
+            try:
+                supabase.storage.from_(INTRO_VIDEO_BUCKET).remove([f'intro{other_ext}'])
+            except Exception:
+                pass
+
+    file_bytes = video_file.read()
+    object_path = f'intro{ext}'
+    content_type = 'video/mp4' if ext == '.mp4' else 'video/webm'
+
+    # upsert=True overwrites the existing file at this same path, so
+    # re-uploading the same format replaces the old video automatically.
+    supabase.storage.from_(INTRO_VIDEO_BUCKET).upload(
+        object_path,
+        file_bytes,
+        file_options={"content-type": content_type, "upsert": "true"}
+    )
+
+    return redirect('/admin')
 
 @app.route('/admin/toggle-sub-admin', methods=['POST'])
 @login_required
