@@ -198,6 +198,10 @@ def subscription_required(view_func):
         return view_func(*args, **kwargs)
     return wrapped
 
+@app.route('/health')
+def health_check():
+    return jsonify({'status': 'ok'}), 200
+
 @app.route('/subscribe')
 @login_required
 def subscribe():
