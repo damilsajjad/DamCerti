@@ -237,7 +237,7 @@
         <div class="video-wrap">
             {% if intro_video_url %}
                 <video controls style="width: 100%; height: 100%; display: block;">
-                    <source src="{{ intro_video_url }}" type="video/{{ intro_video_url.rsplit('.', 1)[-1] }}">
+                    <source src="{{ intro_video_url }}" type="video/{{ intro_video_ext }}">
                     Your browser doesn't support embedded video.
                 </video>
             {% else %}

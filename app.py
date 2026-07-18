@@ -317,25 +317,20 @@ def admin_required(view_func):
         return view_func(*args, **kwargs)
     return wrapped
 
-def get_intro_video_url():
-    """
-    Returns a temporary signed URL for the current intro video, or None
-    if nothing has been uploaded yet. Since the bucket is private, the
-    URL expires after SIGNED_URL_EXPIRY_SECONDS -- the landing page route
-    calls this fresh on every page load, so visitors always get a valid link.
-    """
+def get_intro_video_info():
+    client = get_service_client()
     for ext in ALLOWED_VIDEO_EXTENSIONS:
         object_path = f'intro{ext}'
         try:
-            files = supabase.storage.from_(INTRO_VIDEO_BUCKET).list()
+            files = client.storage.from_(INTRO_VIDEO_BUCKET).list()
             if any(f['name'] == object_path for f in files):
-                result = supabase.storage.from_(INTRO_VIDEO_BUCKET).create_signed_url(
+                result = client.storage.from_(INTRO_VIDEO_BUCKET).create_signed_url(
                     object_path, SIGNED_URL_EXPIRY_SECONDS
                 )
-                return result['signedURL']
+                return result['signedURL'], ext.lstrip('.')
         except Exception:
             continue
-    return None
+    return None, None
 
 # ---------------------------------------------------------------------------
 # Public routes
@@ -344,15 +339,13 @@ def get_intro_video_url():
 @app.route('/')
 def landing():
     is_logged_in = bool(session.get('user_id'))
-
-    intro_video_path = None
-    for ext in ('.mp4', '.webm'):
-        candidate = os.path.join('static', 'videos', f'intro{ext}')
-        if os.path.exists(candidate):
-            intro_video_path = f'/static/videos/intro{ext}'
-            break
-
-    return render_template('landing.html', is_logged_in=is_logged_in, intro_video_url=intro_video_path)
+    intro_video_url, intro_video_ext = get_intro_video_info()
+    return render_template(
+        'landing.html',
+        is_logged_in=is_logged_in,
+        intro_video_url=intro_video_url,
+        intro_video_ext=intro_video_ext
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -584,12 +577,12 @@ def upload_video():
     if file_size > MAX_VIDEO_SIZE_BYTES:
         return "File too large. Maximum size is 200MB.", 400
 
-    # Remove any existing intro video in the other format, so we never
-    # end up with two videos and an ambiguous "which one is live" state.
+    client = get_service_client()
+
     for other_ext in ALLOWED_VIDEO_EXTENSIONS:
         if other_ext != ext:
             try:
-                supabase.storage.from_(INTRO_VIDEO_BUCKET).remove([f'intro{other_ext}'])
+                client.storage.from_(INTRO_VIDEO_BUCKET).remove([f'intro{other_ext}'])
             except Exception:
                 pass
 
@@ -597,9 +590,7 @@ def upload_video():
     object_path = f'intro{ext}'
     content_type = 'video/mp4' if ext == '.mp4' else 'video/webm'
 
-    # upsert=True overwrites the existing file at this same path, so
-    # re-uploading the same format replaces the old video automatically.
-    supabase.storage.from_(INTRO_VIDEO_BUCKET).upload(
+    client.storage.from_(INTRO_VIDEO_BUCKET).upload(
         object_path,
         file_bytes,
         file_options={"content-type": content_type, "upsert": "true"}
