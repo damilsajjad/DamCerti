@@ -43,6 +43,7 @@ app.config.update(
 
 UPLOAD_FOLDER = 'uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 FREE_TRIAL_LIMIT = 5  # Number of free certificates allowed for trial users
 
