@@ -60,6 +60,36 @@ VARIANT_IDS = {
     'yearly': os.getenv("LEMONSQUEEZY_VARIANT_YEARLY"),
 }
 
+SMTP_EMAIL = os.getenv("SMTP_EMAIL")
+SMTP_APP_PASSWORD = os.getenv("SMTP_APP_PASSWORD")
+NOTIFY_EMAIL = os.getenv("NOTIFY_EMAIL")
+
+PLAN_DETAILS = {
+    'monthly': {'name': 'Monthly', 'price': '9.99'},
+    'sixmonth': {'name': '6 Months', 'price': '49.99'},
+    'yearly': {'name': 'Yearly', 'price': '84.99'},
+}
+
+def send_subscription_request_email(full_name, phone, email, plan_name, plan_price):
+    subject = f"New Subscription Request - {plan_name} (${plan_price})"
+    body = (
+        f"New subscription request received:\n\n"
+        f"Name: {full_name}\n"
+        f"Phone: {phone}\n"
+        f"Email: {email}\n"
+        f"Plan: {plan_name} - ${plan_price}\n\n"
+        f"Once payment is confirmed via JazzCash, grant access from /admin "
+        f"by searching this email and clicking 'Grant Free Access'."
+    )
+    msg = MIMEText(body)
+    msg['Subject'] = subject
+    msg['From'] = SMTP_EMAIL
+    msg['To'] = NOTIFY_EMAIL
+
+    with smtplib.SMTP('smtp.gmail.com', 587) as server:
+        server.starttls()
+        server.login(SMTP_EMAIL, SMTP_APP_PASSWORD)
+        server.sendmail(SMTP_EMAIL, NOTIFY_EMAIL, msg.as_string())
 # ---------------------------------------------------------------------------
 # Global error handling -- expired sessions redirect cleanly instead of
 # showing a raw crash page. This was a recurring issue during testing;
@@ -471,6 +501,40 @@ def home():
 @login_required
 def subscription_required_page():
     return render_template('subscription_required.html')
+
+
+@app.route('/subscribe-request')
+@login_required
+def subscribe_request():
+    plan = request.args.get('plan')
+    if plan not in PLAN_DETAILS:
+        return redirect('/subscription-required')
+    return render_template(
+        'subscribe_request.html',
+        plan=plan,
+        plan_name=PLAN_DETAILS[plan]['name'],
+        plan_price=PLAN_DETAILS[plan]['price']
+    )
+
+
+@app.route('/submit-subscription-request', methods=['POST'])
+@login_required
+def submit_subscription_request():
+    plan = request.form.get('plan')
+    full_name = request.form.get('full_name', '').strip()
+    phone = request.form.get('phone', '').strip()
+    email = request.form.get('email', '').strip()
+
+    if plan not in PLAN_DETAILS or not full_name or not phone or not email:
+        return redirect('/subscription-required')
+
+    plan_info = PLAN_DETAILS[plan]
+    try:
+        send_subscription_request_email(full_name, phone, email, plan_info['name'], plan_info['price'])
+    except Exception as e:
+        app.logger.error(f"Failed to send subscription request email: {e}")
+
+    return render_template('subscription_processing.html')
 
 
 @app.route('/generate', methods=['POST'])
