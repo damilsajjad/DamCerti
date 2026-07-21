@@ -12,6 +12,8 @@ import io
 from dotenv import load_dotenv
 from supabase import create_client
 from postgrest.exceptions import APIError
+import smtplib
+from email.mime.text import MIMEText
 
 # Load environment variables from .env file
 load_dotenv()
@@ -203,6 +205,11 @@ def subscription_required(view_func):
 def health_check():
     return jsonify({'status': 'ok'}), 200
 
+'''
+# LEMON SQUEEZY -- DISABLED (switched to manual JazzCash flow below).
+# Kept here, commented out, in case live-mode payment gateway issues get
+# resolved later and we want to re-enable automatic checkout.
+
 @app.route('/subscribe')
 @login_required
 def subscribe():
@@ -311,7 +318,7 @@ def lemonsqueezy_webhook():
     else:
         app.logger.info(f"Unhandled LS webhook event: {event_name}")
 
-    return jsonify({'received': True}), 200
+    return jsonify({'received': True}), 200  '''
 
 def admin_required(view_func):
     @functools.wraps(view_func)

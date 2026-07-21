@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>DamCerti - Subscription Required</title>
+    <title>DamCerti - Complete Your Subscription</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap');
         * { box-sizing: border-box; }
@@ -18,171 +18,131 @@
             justify-content: center;
         }
         .container {
-            max-width: 720px;
+            max-width: 480px;
             width: 100%;
-            text-align: center;
-            animation: fadeUp 0.6s ease both;
-        }
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(14px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .logo {
-            height: 70px;
-            width: auto;
-            margin-bottom: 16px;
-            transition: transform 0.25s ease;
-        }
-        .logo:hover {
-            transform: scale(1.05);
-        }
-        h1 {
-            font-family: 'Playfair Display', serif;
-            font-size: 28px;
-            color: #0c3b33;
-            margin: 0 0 12px 0;
-        }
-        .subtitle {
-            color: #2c5e52;
-            font-size: 14px;
-            line-height: 1.6;
-            margin-bottom: 32px;
-        }
-        .plans {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 16px;
-        }
-        @media (max-width: 640px) {
-            .plans { grid-template-columns: 1fr; }
-        }
-        .plan-card {
-            background: rgba(255, 255, 255, 0.55);
-            backdrop-filter: blur(8px);
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px);
             border: 1px solid rgba(12, 59, 51, 0.12);
             border-radius: 16px;
-            padding: 28px 20px;
+            padding: 36px;
+            box-shadow: 0 20px 50px rgba(12, 59, 51, 0.1);
+        }
+        .logo { height: 56px; display: block; margin: 0 auto 16px auto; }
+        h1 { font-family: 'Playfair Display', serif; font-size: 22px; text-align: center; margin: 0 0 6px 0; }
+        .plan-summary {
             text-align: center;
-            position: relative;
-            transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
-        }
-        .plan-card:hover {
-            transform: translateY(-6px);
-            background: rgba(255, 255, 255, 0.75);
-            box-shadow: 0 14px 32px rgba(12, 59, 51, 0.15);
-        }
-        .plan-card.featured {
-            border: 1px solid #1a9c73;
-        }
-        .badge {
-            position: absolute;
-            top: -12px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: linear-gradient(135deg, #2fbf8f, #1a9c73);
-            color: #ffffff;
-            font-size: 11px;
-            font-weight: 600;
-            padding: 4px 12px;
-            border-radius: 20px;
-            white-space: nowrap;
-        }
-        .plan-name {
-            font-size: 14px;
             color: #2c5e52;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .plan-price {
-            font-family: 'Playfair Display', serif;
-            font-size: 32px;
-            color: #0c3b33;
-            margin-bottom: 4px;
-        }
-        .plan-price span {
             font-size: 14px;
-            color: #2c5e52;
-            font-family: 'Inter', sans-serif;
+            margin-bottom: 24px;
         }
-        .plan-save {
-            font-size: 12px;
-            color: #1a9c73;
-            font-weight: 600;
+        .plan-summary strong { color: #0c3b33; font-size: 18px; }
+        .contact-box {
+            background: rgba(255,255,255,0.7);
+            border: 1px solid rgba(12,59,51,0.15);
+            border-radius: 10px;
+            padding: 16px;
             margin-bottom: 20px;
-            min-height: 16px;
         }
-        button {
-            position: relative;
+        .contact-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+        }
+        .contact-row + .contact-row { border-top: 1px solid rgba(12,59,51,0.08); }
+        .contact-label { font-size: 12px; color: #2c5e52; text-transform: uppercase; letter-spacing: 0.5px; }
+        .contact-value { font-size: 14px; font-weight: 600; color: #0c3b33; }
+        .copy-btn {
+            background: rgba(47,191,143,0.15);
+            border: 1px solid rgba(47,191,143,0.4);
+            color: #0f7a56;
+            border-radius: 6px;
+            padding: 4px 10px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        .copy-btn:hover { background: rgba(47,191,143,0.25); }
+        .instructions {
+            font-size: 13px;
+            color: #2c5e52;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+        label { display: block; font-size: 12px; color: #2c5e52; margin: 12px 0 4px 0; }
+        input[type="text"], input[type="email"], input[type="tel"] {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(12,59,51,0.18);
+            font-size: 14px;
+            background: rgba(255,255,255,0.8);
+        }
+        button[type="submit"] {
+            width: 100%;
+            margin-top: 20px;
             background: linear-gradient(135deg, #2fbf8f, #1a9c73);
-            color: #ffffff;
+            color: #fff;
             border: none;
             border-radius: 8px;
-            padding: 12px 24px;
+            padding: 12px;
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            width: 100%;
-            box-shadow: 0 4px 14px rgba(31, 158, 115, 0.3);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 0 18px 4px rgba(57, 255, 184, 0.7), 0 0 40px 10px rgba(57, 255, 184, 0.35);
-        }
-        a.logout {
-            display: block;
-            margin-top: 28px;
-            color: #2c5e52;
-            font-size: 13px;
-            text-decoration: none;
-            transition: color 0.2s ease;
-        }
-        a.logout:hover {
-            color: #0c3b33;
-        }
+        a.back { display: block; text-align: center; margin-top: 16px; font-size: 13px; color: #2c5e52; text-decoration: none; }
     </style>
 </head>
 <body>
     <div class="container">
         <img src="/static/images/logo.png" alt="DamCerti" class="logo">
-        <h1>Subscription Required</h1>
-        <p class="subtitle">Your free trial has ended. Choose a plan to keep generating certificates.</p>
+        <h1>Complete Your Subscription</h1>
+        <p class="plan-summary">{{ plan_name }} plan — <strong>${{ plan_price }}</strong></p>
 
-        <div class="plans">
-            <div class="plan-card">
-                <div class="plan-name">Monthly</div>
-                <div class="plan-price">$9.99 <span>/mo</span></div>
-                <div class="plan-save">&nbsp;</div>
-                <form action="/subscribe" method="get">
-                    <input type="hidden" name="plan" value="monthly">
-                    <button type="submit">Subscribe</button>
-                </form>
+        <div class="contact-box">
+            <div class="contact-row">
+                <div>
+                    <div class="contact-label">JazzCash Number</div>
+                    <div class="contact-value" id="jazzcashNumber">0325-5506750</div>
+                </div>
+                <button type="button" class="copy-btn" onclick="copyText('jazzcashNumber', this)">Copy</button>
             </div>
-
-            <div class="plan-card featured">
-                <div class="badge">Save 17%</div>
-                <div class="plan-name">6 Months</div>
-                <div class="plan-price">$49.99 <span>/6mo</span></div>
-                <div class="plan-save">vs $59.94 monthly</div>
-                <form action="/subscribe" method="get">
-                    <input type="hidden" name="plan" value="sixmonth">
-                    <button type="submit">Subscribe</button>
-                </form>
-            </div>
-
-            <div class="plan-card">
-                <div class="plan-name">Yearly</div>
-                <div class="plan-price">$84.99 <span>/yr</span></div>
-                <div class="plan-save">Save 29% vs monthly</div>
-                <form action="/subscribe" method="get">
-                    <input type="hidden" name="plan" value="yearly">
-                    <button type="submit">Subscribe</button>
-                </form>
+            <div class="contact-row">
+                <div>
+                    <div class="contact-label">Contact Email</div>
+                    <div class="contact-value" id="contactEmail">damilsajjad@gmail.com</div>
+                </div>
+                <button type="button" class="copy-btn" onclick="copyText('contactEmail', this)">Copy</button>
             </div>
         </div>
 
-        <a class="logout" href="/logout">Log out</a>
+        <p class="instructions">
+            Send <strong>${{ plan_price }}</strong> (PKR equivalent) via JazzCash to the number above, then fill in your details below. We'll contact you shortly to confirm and activate your subscription.
+        </p>
+
+        <form action="/submit-subscription-request" method="post">
+            <input type="hidden" name="plan" value="{{ plan }}">
+            <label>Full Name</label>
+            <input type="text" name="full_name" required>
+            <label>Phone Number</label>
+            <input type="tel" name="phone" required>
+            <label>Email</label>
+            <input type="email" name="email" required>
+            <button type="submit">Place Order</button>
+        </form>
+
+        <a class="back" href="/subscription-required">&larr; Back to plans</a>
     </div>
+
+    <script>
+        function copyText(elementId, btn) {
+            const text = document.getElementById(elementId).innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                const original = btn.innerText;
+                btn.innerText = 'Copied!';
+                setTimeout(() => { btn.innerText = original; }, 1500);
+            });
+        }
+    </script>
 </body>
 </html>
