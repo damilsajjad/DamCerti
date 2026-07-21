@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DamCerti - Complete Your Subscription</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap');
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(160deg, #eafff7 0%, #cdf3e6 25%, #a7e8d4 50%, #7fd9bf 75%, #5cc9ab 100%);
+            background-attachment: fixed;
+            color: #0c3b33;
+            margin: 0;
+            padding: 40px 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            max-width: 480px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(12, 59, 51, 0.12);
+            border-radius: 16px;
+            padding: 36px;
+            box-shadow: 0 20px 50px rgba(12, 59, 51, 0.1);
+        }
+        .logo { height: 56px; display: block; margin: 0 auto 16px auto; }
+        h1 { font-family: 'Playfair Display', serif; font-size: 22px; text-align: center; margin: 0 0 6px 0; }
+        .plan-summary {
+            text-align: center;
+            color: #2c5e52;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+        .plan-summary strong { color: #0c3b33; font-size: 18px; }
+        .contact-box {
+            background: rgba(255,255,255,0.7);
+            border: 1px solid rgba(12,59,51,0.15);
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+        .contact-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+        }
+        .contact-row + .contact-row { border-top: 1px solid rgba(12,59,51,0.08); }
+        .contact-label { font-size: 12px; color: #2c5e52; text-transform: uppercase; letter-spacing: 0.5px; }
+        .contact-value { font-size: 14px; font-weight: 600; color: #0c3b33; }
+        .copy-btn {
+            background: rgba(47,191,143,0.15);
+            border: 1px solid rgba(47,191,143,0.4);
+            color: #0f7a56;
+            border-radius: 6px;
+            padding: 4px 10px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        .copy-btn:hover { background: rgba(47,191,143,0.25); }
+        .instructions {
+            font-size: 13px;
+            color: #2c5e52;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+        label { display: block; font-size: 12px; color: #2c5e52; margin: 12px 0 4px 0; }
+        input[type="text"], input[type="email"], input[type="tel"] {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(12,59,51,0.18);
+            font-size: 14px;
+            background: rgba(255,255,255,0.8);
+        }
+        button[type="submit"] {
+            width: 100%;
+            margin-top: 20px;
+            background: linear-gradient(135deg, #2fbf8f, #1a9c73);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        a.back { display: block; text-align: center; margin-top: 16px; font-size: 13px; color: #2c5e52; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="/static/images/logo.png" alt="DamCerti" class="logo">
+        <h1>Complete Your Subscription</h1>
+        <p class="plan-summary">{{ plan_name }} plan — <strong>${{ plan_price }}</strong></p>
+
+        <div class="contact-box">
+            <div class="contact-row">
+                <div>
+                    <div class="contact-label">JazzCash Number</div>
+                    <div class="contact-value" id="jazzcashNumber">0325-5506750</div>
+                </div>
+                <button type="button" class="copy-btn" onclick="copyText('jazzcashNumber', this)">Copy</button>
+            </div>
+            <div class="contact-row">
+                <div>
+                    <div class="contact-label">Contact Email</div>
+                    <div class="contact-value" id="contactEmail">damilsajjad@gmail.com</div>
+                </div>
+                <button type="button" class="copy-btn" onclick="copyText('contactEmail', this)">Copy</button>
+            </div>
+        </div>
+
+        <p class="instructions">
+            Send <strong>${{ plan_price }}</strong> (PKR equivalent) via JazzCash to the number above, then fill in your details below. We'll contact you shortly to confirm and activate your subscription.
+        </p>
+
+        <form action="/submit-subscription-request" method="post">
+            <input type="hidden" name="plan" value="{{ plan }}">
+            <label>Full Name</label>
+            <input type="text" name="full_name" required>
+            <label>Phone Number</label>
+            <input type="tel" name="phone" required>
+            <label>Email</label>
+            <input type="email" name="email" required>
+            <button type="submit">Place Order</button>
+        </form>
+
+        <a class="back" href="/subscription-required">&larr; Back to plans</a>
+    </div>
+
+    <script>
+        function copyText(elementId, btn) {
+            const text = document.getElementById(elementId).innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                const original = btn.innerText;
+                btn.innerText = 'Copied!';
+                setTimeout(() => { btn.innerText = original; }, 1500);
+            });
+        }
+    </script>
+</body>
+</html>
