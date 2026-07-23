@@ -97,7 +97,7 @@
     <div class="container">
         <img src="/static/images/logo.png" alt="DamCerti" class="logo">
         <h1>Complete Your Subscription</h1>
-        <p class="plan-summary">{{ plan_name }} plan — <strong>${{ plan_price }}</strong></p>
+        <p class="plan-summary">{{ plan_name }} plan — <strong>Rs{{ plan_price }}</strong></p>
 
         <div class="contact-box">
             <div class="contact-row">
@@ -117,7 +117,7 @@
         </div>
 
         <p class="instructions">
-            Send <strong>${{ plan_price }}</strong> via JazzCash to the number above, then fill in your details below. It will take a few minutes to a few hours to activate your subscription.
+            Send <strong>Rs{{ plan_price }}</strong> via JazzCash to the number above, then fill in your details below. It will take a few minutes to a few hours to activate your subscription.
         </p>
 
         <form action="/submit-subscription-request" method="post">

@@ -87,13 +87,13 @@ def send_subscription_request_email(full_name, phone, email, plan_name, plan_pri
     payload = {
         "sender": {"name": "DamCerti", "email": SMTP_EMAIL},
         "to": [{"email": NOTIFY_EMAIL}],
-        "subject": f"New Subscription Request - {plan_name} (${plan_price})",
+        "subject": f"New Subscription Request - {plan_name} (Rs{plan_price})",
         "textContent": (
             f"New subscription request received:\n\n"
             f"Name: {full_name}\n"
             f"Phone: {phone}\n"
             f"Email: {email}\n"
-            f"Plan: {plan_name} - ${plan_price}\n\n"
+            f"Plan: {plan_name} - Rs{plan_price}\n\n"
             f"Once payment is confirmed via JazzCash, grant access from /admin "
             f"by searching this email and clicking 'Grant Free Access'."
         ),
@@ -119,7 +119,7 @@ def send_customer_confirmation_email(full_name, phone, email, plan_name, plan_pr
             f"Name: {full_name}\n"
             f"Phone: {phone}\n"
             f"Email: {email}\n"
-            f"Plan: {plan_name} - ${plan_price}\n\n"
+            f"Plan: {plan_name} - Rs{plan_price}\n\n"
             f"JazzCash payments usually take a few hours to process. "
             f"Once your payment is confirmed, your subscription will be "
             f"activated and you'll be able to generate unlimited certificates.\n\n"
