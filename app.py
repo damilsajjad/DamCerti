@@ -12,8 +12,7 @@ import io
 from dotenv import load_dotenv
 from supabase import create_client
 from postgrest.exceptions import APIError
-import smtplib
-from email.mime.text import MIMEText
+from datetime import timedelta
 
 # Load environment variables from .env file
 load_dotenv()
@@ -61,35 +60,98 @@ VARIANT_IDS = {
 }
 
 SMTP_EMAIL = os.getenv("SMTP_EMAIL")
-SMTP_APP_PASSWORD = os.getenv("SMTP_APP_PASSWORD")
+#SMTP_APP_PASSWORD = os.getenv("SMTP_APP_PASSWORD")
 NOTIFY_EMAIL = os.getenv("NOTIFY_EMAIL")
 
 PLAN_DETAILS = {
-    'monthly': {'name': 'Monthly', 'price': '9.99'},
-    'sixmonth': {'name': '6 Months', 'price': '49.99'},
-    'yearly': {'name': 'Yearly', 'price': '84.99'},
+    'monthly': {'name': 'Monthly', 'price': '2,800'},
+    'sixmonth': {'name': '6 Months', 'price': '14,000'},
+    'yearly': {'name': 'Yearly', 'price': '23,600'},
 }
 
-def send_subscription_request_email(full_name, phone, email, plan_name, plan_price):
-    subject = f"New Subscription Request - {plan_name} (${plan_price})"
-    body = (
-        f"New subscription request received:\n\n"
-        f"Name: {full_name}\n"
-        f"Phone: {phone}\n"
-        f"Email: {email}\n"
-        f"Plan: {plan_name} - ${plan_price}\n\n"
-        f"Once payment is confirmed via JazzCash, grant access from /admin "
-        f"by searching this email and clicking 'Grant Free Access'."
-    )
-    msg = MIMEText(body)
-    msg['Subject'] = subject
-    msg['From'] = SMTP_EMAIL
-    msg['To'] = NOTIFY_EMAIL
+PLAN_DURATIONS = {
+    'monthly': timedelta(days=30),
+    'sixmonth': timedelta(days=183),
+    'yearly': timedelta(days=365),
+}
 
-    with smtplib.SMTP('smtp.gmail.com', 587) as server:
-        server.starttls()
-        server.login(SMTP_EMAIL, SMTP_APP_PASSWORD)
-        server.sendmail(SMTP_EMAIL, NOTIFY_EMAIL, msg.as_string())
+BREVO_API_KEY = os.getenv("BREVO_API_KEY")
+
+def send_subscription_request_email(full_name, phone, email, plan_name, plan_price):
+    url = "https://api.brevo.com/v3/smtp/email"
+    headers = {
+        "accept": "application/json",
+        "api-key": BREVO_API_KEY,
+        "content-type": "application/json",
+    }
+    payload = {
+        "sender": {"name": "DamCerti", "email": SMTP_EMAIL},
+        "to": [{"email": NOTIFY_EMAIL}],
+        "subject": f"New Subscription Request - {plan_name} (${plan_price})",
+        "textContent": (
+            f"New subscription request received:\n\n"
+            f"Name: {full_name}\n"
+            f"Phone: {phone}\n"
+            f"Email: {email}\n"
+            f"Plan: {plan_name} - ${plan_price}\n\n"
+            f"Once payment is confirmed via JazzCash, grant access from /admin "
+            f"by searching this email and clicking 'Grant Free Access'."
+        ),
+    }
+    response = requests.post(url, json=payload, headers=headers)
+    response.raise_for_status()
+
+def send_customer_confirmation_email(full_name, phone, email, plan_name, plan_price):
+    url = "https://api.brevo.com/v3/smtp/email"
+    headers = {
+        "accept": "application/json",
+        "api-key": BREVO_API_KEY,
+        "content-type": "application/json",
+    }
+    payload = {
+        "sender": {"name": "DamCerti", "email": SMTP_EMAIL},
+        "to": [{"email": email}],
+        "subject": "Thank you for subscribing to DamCerti",
+        "textContent": (
+            f"Hi {full_name},\n\n"
+            f"Thank you for subscribing to DamCerti!\n\n"
+            f"Here's a summary of your order:\n"
+            f"Name: {full_name}\n"
+            f"Phone: {phone}\n"
+            f"Email: {email}\n"
+            f"Plan: {plan_name} - ${plan_price}\n\n"
+            f"JazzCash payments usually take a few hours to process. "
+            f"Once your payment is confirmed, your subscription will be "
+            f"activated and you'll be able to generate unlimited certificates.\n\n"
+            f"Thanks for choosing DamCerti!"
+        ),
+    }
+    response = requests.post(url, json=payload, headers=headers)
+    response.raise_for_status()
+
+#-------------------------Customer confirmation email when activated-------------------------
+
+def send_activation_confirmation_email(email):
+    url = "https://api.brevo.com/v3/smtp/email"
+    headers = {
+        "accept": "application/json",
+        "api-key": BREVO_API_KEY,
+        "content-type": "application/json",
+    }
+    payload = {
+        "sender": {"name": "DamCerti", "email": SMTP_EMAIL},
+        "to": [{"email": email}],
+        "subject": "Your DamCerti subscription is now active",
+        "textContent": (
+            f"Good news!\n\n"
+            f"Your payment has been confirmed and your DamCerti subscription "
+            f"is now active. You can generate unlimited certificates starting now.\n\n"
+            f"Log in and get started: https://damcerti.site/generate-certificates\n\n"
+            f"Thanks for choosing DamCerti!"
+        ),
+    }
+    response = requests.post(url, json=payload, headers=headers)
+    response.raise_for_status()
 # ---------------------------------------------------------------------------
 # Global error handling -- expired sessions redirect cleanly instead of
 # showing a raw crash page. This was a recurring issue during testing;
@@ -534,6 +596,11 @@ def submit_subscription_request():
     except Exception as e:
         app.logger.error(f"Failed to send subscription request email: {e}")
 
+    try:
+        send_customer_confirmation_email(full_name, phone, email, plan_info['name'], plan_info['price'])
+    except Exception as e:
+        app.logger.error(f"Failed to send customer confirmation email: {e}")
+
     return render_template('subscription_processing.html')
 
 
@@ -680,23 +747,40 @@ def upload_video():
 def toggle_sub_admin():
     target_user_id = request.form.get('user_id')
     new_role = request.form.get('new_role')
+    plan = request.form.get('plan')
 
-    # Only allow toggling between 'user' and 'sub_admin'.
-    # Promoting/demoting super_admin is intentionally NOT exposed here --
-    # that stays a manual SQL action to prevent accidental loss of admin access.
     if new_role not in ('user', 'sub_admin'):
         return redirect('/admin')
 
     client = create_client(SUPABASE_URL, SUPABASE_KEY)
     client.postgrest.auth(session['access_token'])
 
-    # Guard: never let this endpoint touch a super_admin row, even if someone
-    # tampers with the form data client-side.
-    target = client.table('profiles').select('role').eq('id', target_user_id).single().execute()
+    target = client.table('profiles').select('role, email').eq('id', target_user_id).single().execute()
     if target.data and target.data.get('role') == 'super_admin':
         return redirect('/admin')
 
-    client.table('profiles').update({'role': new_role}).eq('id', target_user_id).execute()
+    update_data = {'role': new_role}
+
+    if new_role == 'sub_admin':
+        if plan not in PLAN_DURATIONS:
+            return redirect('/admin')
+        expires_at = datetime.now(timezone.utc) + PLAN_DURATIONS[plan]
+        update_data['subscription_plan'] = plan
+        update_data['subscription_expires_at'] = expires_at.isoformat()
+        update_data['subscription_status'] = 'active'
+    else:
+        update_data['subscription_plan'] = None
+        update_data['subscription_expires_at'] = None
+        update_data['subscription_status'] = 'inactive'
+
+    client.table('profiles').update(update_data).eq('id', target_user_id).execute()
+
+    if new_role == 'sub_admin' and target.data and target.data.get('email'):
+        try:
+            send_activation_confirmation_email(target.data['email'])
+        except Exception as e:
+            app.logger.error(f"Failed to send activation confirmation email: {e}")
+
     return redirect('/admin')
 
 

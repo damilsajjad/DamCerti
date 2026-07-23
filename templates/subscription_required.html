@@ -147,12 +147,13 @@
     <div class="container">
         <img src="/static/images/logo.png" alt="DamCerti" class="logo">
         <h1>Subscription Required</h1>
-        <p class="subtitle">Your free trial has ended. Choose a plan to keep generating certificates.</p>
+        <p class="subtitle">Your free trial has ended. Choose a plan to keep generating UNLIMATED certificates.</p>
 
         <div class="plans">
-            <div class="plan-card">
+            <div class="plan-card featured">
                 <div class="plan-name">Monthly</div>
-                <div class="plan-price">$9.99 <span>/mo</span></div>
+                <div class="plan-price">Rs 2,800<span>/mo</span></div>
+                <div class="plan-save">&nbsp;</div>
                 <div class="plan-save">&nbsp;</div>
                 <form action="/subscribe-request" method="get">
                     <input type="hidden" name="plan" value="monthly">
@@ -163,18 +164,20 @@
             <div class="plan-card featured">
                 <div class="badge">Save 17%</div>
                 <div class="plan-name">6 Months</div>
-                <div class="plan-price">$49.99 <span>/6mo</span></div>
-                <div class="plan-save">vs $59.94 monthly</div>
+                <div class="plan-price">Rs 14,000 <span>/6mo</span></div>
+                <div class="plan-save">vs Rs 17,000 monthly</div>
+                <div class="plan-save">&nbsp;</div>
                 <form action="/subscribe-request" method="get">
                     <input type="hidden" name="plan" value="sixmonth">
                     <button type="submit">Subscribe</button>
                 </form>
             </div>
 
-            <div class="plan-card">
+            <div class="plan-card featured">
                 <div class="badge">Save 29%</div>
                 <div class="plan-name">Yearly</div>
-                <div class="plan-price">$84.99 <span>/yr</span></div>
+                <div class="plan-price">Rs 23,600 <span>/yr</span></div>
+                <div class="plan-save">vs Rs 28,000 monthly</div>
                 <div class="plan-save">&nbsp;</div>
                 <form action="/subscribe-request" method="get">
                     <input type="hidden" name="plan" value="yearly">

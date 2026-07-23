@@ -211,6 +211,8 @@
                     <th>Joined</th>
                     <th>Last Sign In</th>
                     <th>Action</th>
+                    <th>Plan</th>
+                    <th>Expires</th>
                 </tr>
             </thead>
             <tbody id="userTableBody">
@@ -222,6 +224,8 @@
                     <td>{{ user.free_certificates_used or 0 }} / 15</td>
                     <td>{{ user.created_at[:10] if user.created_at else '-' }}</td>
                     <td>{{ user.last_sign_in[:16].replace('T', ' ') if user.last_sign_in else 'Never' }}</td>
+                    <td>{{ user.subscription_plan or '-' }}</td>
+                    <td>{{ user.subscription_expires_at[:10] if user.subscription_expires_at else '-' }}</td>
                     <td>
                         {% if user.id == current_user_id %}
                             <span class="self-note">This is you</span>
@@ -237,7 +241,12 @@
                             <form method="POST" action="/admin/toggle-sub-admin" style="display:inline;">
                                 <input type="hidden" name="user_id" value="{{ user.id }}">
                                 <input type="hidden" name="new_role" value="sub_admin">
-                                <button type="submit" class="action-btn">Grant Free Access</button>
+                                <select name="plan" required style="font-size:12px; padding:4px; border-radius:6px; margin-right:6px;">
+                                    <option value="monthly">Monthly</option>
+                                    <option value="sixmonth">6 Months</option>
+                                    <option value="yearly">Yearly</option>
+                                </select>
+                                <button type="submit" class="action-btn">Grant Access</button>
                             </form>
                         {% endif %}
                     </td>
